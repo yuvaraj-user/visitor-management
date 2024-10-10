@@ -22,6 +22,14 @@
     .f-10 {
         font-size: 10px;
     }
+
+    .ui-timepicker-wrapper {
+        width: 11%;
+    }
+
+    .ui-timepicker-am,.ui-timepicker-pm {
+        text-align: center;
+    }
 </style>
 
 <div class="content-body">
@@ -30,6 +38,40 @@
         <h4 class="card-title">Table Hover</h4>
     </div> -->
     <div class="container-fluid">
+            <!-- row -->
+            <div class="modal fade" id="close_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Appointment Close </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body pl-5 pr-5">
+                    <input type="hidden" id="apmt_no">
+                    <input type="hidden" id="apt_req_id">
+                    <div class="form-group">
+                        <label for="meeting_points" class="text-primary font-weight-bold">Particulars</label>
+                        <textarea class="form-control box-border" id="meeting_particulars" rows="2" name="meeting_particulars"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="meeting_points" class="text-primary font-weight-bold">Meeting Points</label>
+                        <textarea class="form-control box-border" id="meeting_points" rows="6" name="meeting_points"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="text-primary font-weight-bold">Meeting Person Detail</label>
+                        <select id="popup_meeting_person" class="form-control multi-select" name="meeting_person_code[]" required multiple="multiple">
+                        </select>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+                    <button type="button" class="btn btn-primary" id="submit_close">Close Appointment</button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
 
         <form id="appointment_request_form" method="POST">
@@ -104,6 +146,15 @@
                                         <select id="inputState" class="form-control select2" name="wifi_required" required>
                                             <option selected>Choose...</option>
                                             <option value="yes">Yes</option>
+                                            <option value="no">No</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-md-2">
+                                        <label class="text-dark font-weight-bold">Approval Request</label>
+                                        <select id="approval_request_type" class="form-control select2" name="approval_request_type" required>
+                                            <option selected>Choose...</option>
+                                            <option value="yes" selected>Yes</option>
                                             <option value="no">No</option>
                                         </select>
                                     </div>
@@ -227,6 +278,8 @@
                 }
                 $('.multi-select').multiselect('destroy');
                 $('#meeting_person').html(option);
+                $('#popup_meeting_person').html(option);
+
                 $('.multi-select').multiselect({
             // maxHeight: 450,
             // selectAllText:' Select all',
@@ -409,14 +462,95 @@
 
     $(document).on('submit','#appointment_request_form',function(e){
         e.preventDefault();
+
+        let approval_request_type = $('#approval_request_type').val();
+        if(approval_request_type == 'yes') {
+            $.ajax({
+                type: "POST",
+                url: "ajax/common_ajax.php",
+                data: { "Action": "create_appointment_request","data" : $('#appointment_request_form').serialize()},
+                dataType:"json",
+                beforeSend:function(){
+                    $('#preloader').show();
+                },
+                success: function(result) {
+                    $('#preloader').hide();
+                    if(result.status == 200) {
+                        swal({
+                            title: "Sucess",
+                            text: result.msg,
+                            icon: "success",
+                        }).then(function(isconfirm){
+                            if(isconfirm) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        Alert_Msg("Failed",result.msg,"error");   
+                    }
+                }
+            });
+
+        } else if(approval_request_type == 'no') {
+            $('#close_modal').modal('show');
+        }
+
+    });
+
+    function IsValidMobileNumber(input) {
+         input.value = input.value.replace(/[^0-9]/g, '');
+
+         if(input.value.length > 10) {
+            input.value = input.value.slice(0,10); 
+         }
+
+    }
+
+
+    $(document).on('click','#submit_close',function(){
+        $('#close_modal').modal('hide');
         $.ajax({
+                type: "POST",
+                url: "ajax/common_ajax.php",
+                data: { "Action": "create_appointment_request","data" : $('#appointment_request_form').serialize()},
+                dataType:"json",
+                beforeSend:function(){
+                    $('#preloader').show();
+                },
+                success: function(result) {
+                    if(result.status == 200) {
+                        meeting_reviews_save(result.record_id[0]);
+                    } else {
+                        Alert_Msg("Failed",result.msg,"error");   
+                    }
+                }
+        });
+    });
+
+    function meeting_reviews_save(apt_req_id)
+    {
+        var meeting_particulars = $('#meeting_particulars').val();
+        var meeting_points      = $('#meeting_points').val();
+        var appointment_no      = $('#apt_no').val();
+        var apt_req_id          = apt_req_id;
+        var meeting_person_code = $('#popup_meeting_person').val();
+        
+
+         $.ajax({
             type: "POST",
             url: "ajax/common_ajax.php",
-            data: { "Action": "create_appointment_request","data" : $('#appointment_request_form').serialize()},
-            dataType:"json",
+            data: {
+                "Action": "close_appointment_request",
+                appointment_no : appointment_no,
+                meeting_points : meeting_points,
+                apt_req_id: apt_req_id,
+                meeting_particulars : meeting_particulars,
+                meeting_person_code : meeting_person_code
+            },
             beforeSend:function(){
                 $('#preloader').show();
             },
+            dataType:"json",
             success: function(result) {
                 $('#preloader').hide();
                 if(result.status == 200) {
@@ -429,21 +563,11 @@
                             location.reload();
                         }
                     });
-                } else {
-                    Alert_Msg("Failed",result.msg,"error");   
                 }
             }
         });
-    });
-
-    function IsValidMobileNumber(input) {
-         input.value = input.value.replace(/[^0-9]/g, '');
-
-         if(input.value.length > 10) {
-            input.value = input.value.slice(0,10); 
-         }
-
     }
+
 </script>
 
 </body>

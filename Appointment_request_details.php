@@ -150,10 +150,17 @@ class Appointment_request_details
  		$parking_required 	= $data['parking_required'];
  		$wifi_required 	    = $data['wifi_required'];
  		$department         = $data['department'];
+ 		$is_approval_request = $data['approval_request_type'];
+ 		$request_status      = ($is_approval_request == 'yes') ? 'Created' : 'Closed';  
+ 		$created_by           = $_SESSION['EmpID'];
+ 		$approved_by          = ($is_approval_request == 'yes') ? '' : $_SESSION['EmpID'];
+ 		$arrival_reported_by  = ($is_approval_request == 'yes') ? '' : $_SESSION['EmpID'];
+ 		$closed_by            = ($is_approval_request == 'yes') ? '' : $_SESSION['EmpID'];
+
 		$meeting_person_code = array();
 		$meeting_person_name = array();
 
- 		$query  = "INSERT INTO VM_Appointment_Request (appointment_no,meeting_person_code,meeting_person_details,department,purpose_of_meeting,meeting_location,meeting_date,meeting_time_from,meeting_time_to,parking_required,wifi_required,status) VALUES"; 
+ 		$query  = "INSERT INTO VM_Appointment_Request (appointment_no,meeting_person_code,meeting_person_details,department,purpose_of_meeting,meeting_location,meeting_date,meeting_time_from,meeting_time_to,parking_required,wifi_required,status,created_by,approved_by,arrival_reported_by,closed_by) VALUES"; 
 
 
  		 for($i = 0;$i< count($data['meeting_person_code']);$i++) {
@@ -164,7 +171,7 @@ class Appointment_request_details
  		 $meeting_person_codes = (COUNT($meeting_person_code) > 0) ? implode(',', $meeting_person_code) : '';
  		 $meeting_person_names = (COUNT($meeting_person_name) > 0) ? implode(',', $meeting_person_name) : '';
 
-		$query .= "('".$appoint_no."','".$meeting_person_codes."','".$meeting_person_names."','".$department."','".$meeting_purpose."','".$meeting_location."','".$meeting_date."','".$meeting_time_from."','".$meeting_time_to."','".$parking_required."','".$wifi_required."','Created'); SELECT SCOPE_IDENTITY()";
+		$query .= "('".$appoint_no."','".$meeting_person_codes."','".$meeting_person_names."','".$department."','".$meeting_purpose."','".$meeting_location."','".$meeting_date."','".$meeting_time_from."','".$meeting_time_to."','".$parking_required."','".$wifi_required."','".$request_status."','".$created_by."','".$approved_by."','".$arrival_reported_by."','".$closed_by."'); SELECT SCOPE_IDENTITY()";
 		// echo $query;exit;
 
  		$appointment_request = sqlsrv_query($this->conn,$query);
@@ -173,15 +180,16 @@ class Appointment_request_details
  			$retrive_request_id = sqlsrv_next_result($appointment_request);
  			$apt_request_id     = sqlsrv_fetch_array($appointment_request);
 
- 			$v_query  = "INSERT INTO VM_Appointment_visitors (appointment_request_id,appointment_no,visitor_name,visitor_designation,visitor_company_details,visitor_mail_id,visitor_mobile_no) VALUES"; 
+ 			$v_query  = "INSERT INTO VM_Appointment_visitors (appointment_request_id,appointment_no,visitor_name,visitor_designation,visitor_company_details,visitor_mail_id,visitor_mobile_no,arrival_status) VALUES"; 
 	 		 foreach($data['visitor_name'] as $key => $value) {
 	 		 	$visitor_name           	= $data['visitor_name'][$key];
 	 		 	$visitor_designation   		= $data['designation'][$key];
 	 		 	$visitor_comapany_details   = $data['comapany_details'][$key];
 	 		 	$visitor_email_id 			= $data['email_id'][$key];
 	 		 	$visitor_mobile_no 			= $data['mobile_no'][$key];
+	 		 	$arrival_status            = ($is_approval_request == 'yes') ? '' : 'Arrived';
 
-	 		 	$v_query .= "('".$apt_request_id[0]."','".$appoint_no."','".$visitor_name."','".$visitor_designation."','".$visitor_comapany_details."','".$visitor_email_id."','".$visitor_mobile_no."')";
+	 		 	$v_query .= "('".$apt_request_id[0]."','".$appoint_no."','".$visitor_name."','".$visitor_designation."','".$visitor_comapany_details."','".$visitor_email_id."','".$visitor_mobile_no."','".$arrival_status."')";
 	 		 	if(isset($data['visitor_name'][$key + 1])) {
 	 		 		$v_query .= ",";
 	 		 	}
@@ -195,6 +203,7 @@ class Appointment_request_details
 	 		} else {
 	 			$response['status'] = 200;
 	 			$response['msg'] = "Appointment request created successfully.";
+	 			$response['record_id'] = $apt_request_id;
 	 		}
  		} else {
  			$response['status'] = 500;
@@ -210,7 +219,7 @@ class Appointment_request_details
 	public function approve_appointment_request($request)
 	{
 		if($request['appointment_no']) {
-			$query  = "UPDATE VM_Appointment_Request SET status = 'Approved',meeting_room = '".$request['meeting_room']."' where appointment_no = '".$request['appointment_no']."'";
+			$query  = "UPDATE VM_Appointment_Request SET status = 'Approved',meeting_room = '".$request['meeting_room']."',approved_by = '".$_SESSION['EmpID']."' where appointment_no = '".$request['appointment_no']."'";
 			$appointment_approval = sqlsrv_query($this->conn,$query);
 			if($appointment_approval === false) {
 				$response['status'] = 500;
@@ -254,7 +263,7 @@ class Appointment_request_details
 	public function close_appointment_request($request)
 	{
 		if($request['appointment_no']) {
-			$query  = "UPDATE VM_Appointment_Request SET status = 'Closed' where appointment_no = '".$request['appointment_no']."'";
+			$query  = "UPDATE VM_Appointment_Request SET status = 'Closed',closed_by = '".$_SESSION['EmpID']."' where appointment_no = '".$request['appointment_no']."'";
 			$appointment_close = sqlsrv_query($this->conn,$query);
 			if($appointment_close === false) {
 				$response['status'] = 500;
@@ -277,7 +286,7 @@ class Appointment_request_details
 	{
 		parse_str($request['form_data'],$data);
 		if($request['appointment_no']) {
-			$query  = "UPDATE VM_Appointment_Request SET status = '".$request['meeting_status']."' where appointment_no = '".$request['appointment_no']."'";
+			$query  = "UPDATE VM_Appointment_Request SET status = '".$request['meeting_status']."',arrival_reported_by = '".$_SESSION['EmpID']."' where appointment_no = '".$request['appointment_no']."'";
 			$appointment_close = sqlsrv_query($this->conn,$query);
 			if($appointment_close === false) {
 				$response['status'] = 500;

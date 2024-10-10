@@ -3,7 +3,7 @@ include '../auto_load.php';
 
 $appointment_no = $_POST['appointment_no'];
 
-$appointment_no = 'APT-000003';
+// $appointment_no = 'APT-000003';
 
 
 $sql = "SELECT request_tbl.meeting_person_details,request_tbl.meeting_time_from,request_tbl.meeting_time_to,request_tbl.purpose_of_meeting,FORMAT(request_tbl.meeting_date,'dd-MM-yyyy') as meeting_date,request_tbl.appointment_no,COUNT(visitors_tbl.visitor_name) AS visitor_total_count,MIN(visitors_tbl.visitor_name) AS visitor_name from VM_Appointment_Request as request_tbl 
@@ -177,7 +177,12 @@ $meeting_toal_count  = COUNT($meeting_persons);
                         <p class="text-bold">Name <span class="side_head_span1">:</span></p>
                     </td>
                     <td>
-                        <p><?php echo $sql_result['visitor_name']; ?> <span class="text-bold">+<?php echo ($sql_result['visitor_total_count'] - 1); ?></span></p>
+                        <p><?php echo $sql_result['visitor_name']; ?>
+                            <?php 
+                            if($sql_result['visitor_total_count'] - 1 > 0) { ?>
+                                <span class="text-bold">+<?php echo ($sql_result['visitor_total_count'] - 1); ?></span>
+                            <?php } ?>
+                        </p>
                     </td>
                 </tr>
                 <tr>
@@ -215,7 +220,12 @@ $meeting_toal_count  = COUNT($meeting_persons);
                         <p class="text-bold">Person to Meet <span class="side_head_span6">:</span></p>
                     </td>
                     <td>
-                        <p><?php echo $meeting_person_name ?> <span class="text-bold">+<?php echo ($meeting_toal_count - 1); ?></span></p>
+                        <p><?php echo $meeting_person_name ?>
+                        <?php 
+                        if($meeting_toal_count - 1 > 0) { ?> 
+                            <span class="text-bold">+<?php echo ($meeting_toal_count - 1); ?></span>
+                        <?php } ?>
+                        </p>
                     </td>
                 </tr>
                 <tr>

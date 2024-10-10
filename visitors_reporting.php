@@ -66,7 +66,8 @@
                               <th scope="col">Visitors Name</th>
                               <th scope="col">Designation</th>
                               <th scope="col">Company Details</th>
-                              <th scope="col">EMail</th>                              
+                              <th scope="col">Email</th>   
+                              <th scope="col">Mobile</th>                              
                             </tr>
                           </thead>
                           <tbody id="visitors_info_tbody">
@@ -142,6 +143,10 @@
 
 
        </div>
+       <!-- <div id="printArea" style="display: none;"> -->
+        <iframe id="printFrame" style="display: none;"></iframe>
+
+        </div>
         <!--**********************************
         Main wrapper end
         ***********************************-->
@@ -181,9 +186,10 @@
                             <td class="text-dark text-center">${ result['request'][i].meeting_time_to }</td>
                             <td class="text-dark text-center">${ result['request'][i].meeting_room }</td>
                             <td class="text-dark text-center"><span class="badge badge-rounded badge-success text-white">${ result['request'][i].status }</span></td>
-                            <td class="text-center">
+                            <td class="text-center" style="width:12%;">
                                 <a><button class="btn btn-sm btn-info text-white visitor_info_btn" title="Visitors Info" data-aptno="${ result['request'][i].appointment_no }"><i class="fa fa-info-circle" aria-hidden="true"></i></button></a>
                                 <a><button class="btn btn-sm btn-success text-white arrival_status_btn" title="Approve"><i class="fa fa-check" aria-hidden="true"></i></button></a>
+                                <a><button class="btn btn-sm btn-primary text-white print_btn" title="Print Pass"><i class="fa-solid fa-print"></i></button></a>
                             </td>
                             </tr>`;
                         }
@@ -220,6 +226,7 @@
                             <td class="text-dark text-center">${ result['request'][i].visitor_designation }</td>
                             <td class="text-dark text-center">${ result['request'][i].visitor_company_details }</td>
                             <td class="text-dark text-center">${ result['request'][i].visitor_mail_id }</td>
+                            <td class="text-dark text-center">${ (result['request'][i].visitor_mobile_no != null) ? result['request'][i].visitor_mobile_no : '' }</td>
                             </tr>`;
                         }
 
@@ -332,6 +339,36 @@
                 }
             });
 
+
+            $(document).on('click','.print_btn',function(){
+                var current_select = $(this); 
+                var appointment_no = current_select.closest('tr').data('apt-no');
+
+                $.ajax({
+                    type: "POST",
+                    url: "visitor_pass.php",
+                    data: { "appointment_no" : appointment_no },
+                    beforeSend:function(){
+                        $('#preloader').show();
+                    },
+                    dataType:"html",
+                    success: function(result) {
+                        var printFrame = document.getElementById('printFrame');
+
+                        // Write the result to the iframe
+                        printFrame.contentWindow.document.open();
+                        printFrame.contentWindow.document.write(result);
+                        printFrame.contentWindow.document.close();
+                        
+                        // Trigger the print dialog
+                        printFrame.contentWindow.focus(); // Focus on the iframe
+                        printFrame.contentWindow.print();
+                    },
+                    complete: function() {
+                        $('#preloader').hide();
+                    }
+                });
+            });
 
 
 

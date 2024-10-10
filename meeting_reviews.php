@@ -67,6 +67,7 @@
                               <th scope="col">Designation</th>
                               <th scope="col">Company Details</th>
                               <th scope="col">Email</th>   
+                              <th scope="col">Mobile</th>   
                               <th scope="col">Arrival Status</th>                                                         
                             </tr>
                           </thead>
@@ -207,6 +208,7 @@
                             <td class="text-dark text-center">${ result['reviews_data'][i].visitor_designation }</td>
                             <td class="text-dark text-center">${ result['reviews_data'][i].visitor_company_details }</td>
                             <td class="text-dark text-center">${ result['reviews_data'][i].visitor_mail_id }</td>
+                            <td class="text-dark text-center">${ (result['reviews_data'][i].visitor_mobile_no != null) ? result['reviews_data'][i].visitor_mobile_no : '' }</td>
                             <td class="text-dark text-center">${ (result['reviews_data'][i].arrival_status != null) ? result['reviews_data'][i].arrival_status : ''}</td>
                             </tr>`;
                         }

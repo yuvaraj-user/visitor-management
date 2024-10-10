@@ -110,21 +110,21 @@ class Appointment_request_details
 		$query        = "SELECT appointment_no,meeting_time_from,meeting_time_to,meeting_person_details,meeting_location,status,FORMAT(meeting_date,'dd-MM-yyyy') as meeting_date from VM_Appointment_Request where status = 'Created' group by appointment_no,meeting_time_from,meeting_time_to,meeting_person_details,meeting_location,status,meeting_date";
 
 		if(isset($request['for']) && $request['for'] == 'visitors_info') {
-			$query        = "SELECT visitors_tbl.visitor_name,visitors_tbl.visitor_designation,visitors_tbl.visitor_company_details,visitors_tbl.visitor_mail_id 
+			$query        = "SELECT visitors_tbl.visitor_name,visitors_tbl.visitor_designation,visitors_tbl.visitor_company_details,visitors_tbl.visitor_mail_id,visitors_tbl.visitor_mobile_no 
 			from VM_Appointment_Request as request_tbl
 			inner join VM_Appointment_visitors as visitors_tbl on request_tbl.id = visitors_tbl.appointment_request_id 
 			where request_tbl.status = 'Created' and request_tbl.appointment_no = '".$request['appointment_no']."' 
-			group by visitor_name,visitor_designation,visitor_company_details,visitor_mail_id";
+			group by visitor_name,visitor_designation,visitor_company_details,visitor_mail_id,visitors_tbl.visitor_mobile_no";
 			$result['meeting_person_names'] = $this->get_meeting_person_names($request['appointment_no']);
 
 		}
 
 		if(isset($request['from']) && $request['from'] == 'dashboard') {
-			$query        = "SELECT visitors_tbl.visitor_name,visitors_tbl.visitor_designation,visitors_tbl.visitor_company_details,visitors_tbl.visitor_mail_id 
+			$query        = "SELECT visitors_tbl.visitor_name,visitors_tbl.visitor_designation,visitors_tbl.visitor_company_details,visitors_tbl.visitor_mail_id,visitors_tbl.visitor_mobile_no 
 			from VM_Appointment_Request as request_tbl
 			inner join VM_Appointment_visitors as visitors_tbl on request_tbl.id = visitors_tbl.appointment_request_id 
 			where request_tbl.appointment_no = '".$request['appointment_no']."' 
-			group by visitor_name,visitor_designation,visitor_company_details,visitor_mail_id";
+			group by visitor_name,visitor_designation,visitor_company_details,visitor_mail_id,visitors_tbl.visitor_mobile_no";
 			$result['meeting_person_names'] = $this->get_meeting_person_names($request['appointment_no']);
 
 		}
@@ -140,6 +140,7 @@ class Appointment_request_details
 	public function create_appointment_request($request) 
 	{
 		parse_str($request['data'],$data);
+		// echo "<pre>";print_r($data);exit;
 		$appoint_no      	= $data['appoint_no'];
  		$meeting_purpose 	= $data['meeting_purpose'];
  		$meeting_location 	= $data['meeting_location'];
@@ -164,6 +165,7 @@ class Appointment_request_details
  		 $meeting_person_names = (COUNT($meeting_person_name) > 0) ? implode(',', $meeting_person_name) : '';
 
 		$query .= "('".$appoint_no."','".$meeting_person_codes."','".$meeting_person_names."','".$department."','".$meeting_purpose."','".$meeting_location."','".$meeting_date."','".$meeting_time_from."','".$meeting_time_to."','".$parking_required."','".$wifi_required."','Created'); SELECT SCOPE_IDENTITY()";
+		// echo $query;exit;
 
  		$appointment_request = sqlsrv_query($this->conn,$query);
 
@@ -171,14 +173,15 @@ class Appointment_request_details
  			$retrive_request_id = sqlsrv_next_result($appointment_request);
  			$apt_request_id     = sqlsrv_fetch_array($appointment_request);
 
- 			$v_query  = "INSERT INTO VM_Appointment_visitors (appointment_request_id,appointment_no,visitor_name,visitor_designation,visitor_company_details,visitor_mail_id) VALUES"; 
+ 			$v_query  = "INSERT INTO VM_Appointment_visitors (appointment_request_id,appointment_no,visitor_name,visitor_designation,visitor_company_details,visitor_mail_id,visitor_mobile_no) VALUES"; 
 	 		 foreach($data['visitor_name'] as $key => $value) {
 	 		 	$visitor_name           	= $data['visitor_name'][$key];
 	 		 	$visitor_designation   		= $data['designation'][$key];
 	 		 	$visitor_comapany_details   = $data['comapany_details'][$key];
 	 		 	$visitor_email_id 			= $data['email_id'][$key];
+	 		 	$visitor_mobile_no 			= $data['mobile_no'][$key];
 
-	 		 	$v_query .= "('".$apt_request_id[0]."','".$appoint_no."','".$visitor_name."','".$visitor_designation."','".$visitor_comapany_details."','".$visitor_email_id."')";
+	 		 	$v_query .= "('".$apt_request_id[0]."','".$appoint_no."','".$visitor_name."','".$visitor_designation."','".$visitor_comapany_details."','".$visitor_email_id."','".$visitor_mobile_no."')";
 	 		 	if(isset($data['visitor_name'][$key + 1])) {
 	 		 		$v_query .= ",";
 	 		 	}
@@ -231,11 +234,11 @@ class Appointment_request_details
 		$query        = "SELECT appointment_no,meeting_time_from,meeting_time_to,meeting_person_details,meeting_location,status,FORMAT(meeting_date,'dd-MM-yyyy') as meeting_date,meeting_room from VM_Appointment_Request where status = 'Approved' group by appointment_no,meeting_time_from,meeting_time_to,meeting_person_details,meeting_location,status,meeting_date,meeting_room";
 
 		if(isset($request['for']) && $request['for'] == 'visitors_info') {
-			$query        = "SELECT visitors_tbl.id,visitors_tbl.visitor_name,visitors_tbl.visitor_designation,visitors_tbl.visitor_company_details,visitors_tbl.visitor_mail_id 
+			$query        = "SELECT visitors_tbl.id,visitors_tbl.visitor_name,visitors_tbl.visitor_designation,visitors_tbl.visitor_company_details,visitors_tbl.visitor_mail_id,visitors_tbl.visitor_mobile_no 
 			from VM_Appointment_Request as request_tbl
 			inner join VM_Appointment_visitors as visitors_tbl on request_tbl.id = visitors_tbl.appointment_request_id 
 			where request_tbl.status = 'Approved' and request_tbl.appointment_no = '".$request['appointment_no']."' 
-			group by visitor_name,visitor_designation,visitor_company_details,visitor_mail_id,visitors_tbl.id";
+			group by visitor_name,visitor_designation,visitor_company_details,visitor_mail_id,visitors_tbl.id,visitors_tbl.visitor_mobile_no";
 			$result['meeting_person_names'] = $this->get_meeting_person_names($request['appointment_no']);
 
 		}
@@ -420,7 +423,7 @@ class Appointment_request_details
 		$query        = "SELECT VM_Appointment_Request.appointment_no,VM_Meeting_reviews.meeting_particulars,VM_Meeting_reviews.meeting_points,VM_Meeting_reviews.meeting_person_code from VM_Appointment_Request inner join VM_Meeting_reviews on VM_Appointment_Request.id = VM_Meeting_reviews.appointment_request_id where VM_Appointment_Request.status = 'Closed'";
 		
 		if(isset($request['for']) && $request['for'] == 'visitors_info') {
-			$query        = "SELECT VM_Appointment_Request.appointment_no,VM_Meeting_reviews.meeting_particulars,VM_Meeting_reviews.meeting_points,VM_Meeting_reviews.meeting_person_code,VM_Appointment_visitors.visitor_name,VM_Appointment_visitors.visitor_designation,VM_Appointment_visitors.visitor_mail_id,VM_Appointment_visitors.visitor_company_details,VM_Appointment_visitors.arrival_status from VM_Appointment_Request 
+			$query        = "SELECT VM_Appointment_Request.appointment_no,VM_Meeting_reviews.meeting_particulars,VM_Meeting_reviews.meeting_points,VM_Meeting_reviews.meeting_person_code,VM_Appointment_visitors.visitor_name,VM_Appointment_visitors.visitor_designation,VM_Appointment_visitors.visitor_mail_id,VM_Appointment_visitors.visitor_company_details,VM_Appointment_visitors.arrival_status,VM_Appointment_visitors.visitor_mobile_no from VM_Appointment_Request 
 			inner join VM_Meeting_reviews on VM_Appointment_Request.id = VM_Meeting_reviews.appointment_request_id 
 			inner join VM_Appointment_visitors on VM_Appointment_Request.id = VM_Appointment_visitors.appointment_request_id where VM_Appointment_Request.status = 'Closed' and VM_Appointment_Request.appointment_no = '".$request['appointment_no']."'";
 		}
@@ -450,6 +453,18 @@ class Appointment_request_details
  		 	// }
 		}
 		return $result;
+	}
+
+	public function get_meeting_location($request)
+	{	
+		$result 	  = array();
+
+		$query        = "SELECT DISTINCT Plant_Code,Plant_Name from Plant_Master_PO";
+		$location     = sqlsrv_query($this->conn,$query);
+		while($row = sqlsrv_fetch_array($location,SQLSRV_FETCH_ASSOC)) {
+			$result[] = $row;
+		}
+		return $result;	
 	}
 
 }

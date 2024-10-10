@@ -2,6 +2,28 @@
 
 <?php include('sidebar.php'); ?>
 
+<style type="text/css">
+    input {
+        border : 1px solid #aaa !important;
+    }   
+
+    .select2-selection {
+        height: 37px !important;
+    } 
+
+    .select2-selection__rendered {
+        margin-top: 3px !important;
+    }
+
+    .select2-selection__arrow {
+        top: 4px !important;
+    }
+
+    .f-10 {
+        font-size: 10px;
+    }
+</style>
+
 <div class="content-body">
     <!-- row -->
     <!-- <div class="card-header">
@@ -21,57 +43,63 @@
                         </div>
                         <div class="card-body">
                             <div class="basic-form">
-                                <div class="form-row">
+                                <div class="row">
                                     <div class="form-group col-md-2">
                                         <label class="text-dark font-weight-bold">Appointment No</label>
                                         <input type="text" class="form-control grey-textbox" id="apt_no" name="appoint_no" readonly required>
                                     </div>
 
-                                    <div class="form-group col-md-2 ml-4">
+                                    <div class="form-group col-md-2">
                                         <label class="text-dark font-weight-bold">Department</label>
                                         <select class="form-control select2" name="department" id="department">
                                             <option>Choose Department</option>
                                         </select>
                                     </div>
-                                    <div class="form-group col-md-2 ml-4">
+                                    <div class="form-group col-md-2">
                                         <label class="text-dark font-weight-bold">Meeting Person Detail</label>
                                         <select id="meeting_person" class="form-control multi-select" name="meeting_person_code[]" required multiple="multiple">
                                         </select>
                                     </div>
-                                    <div class="form-group col-md-3 ml-4">
+                                    <div class="form-group col-md-3">
                                         <label class="text-dark font-weight-bold">Purpose Of Meeting</label>
                                         <input type="text" name="meeting_purpose" class="form-control" placeholder="Enter Purpose Of Meeting" required>
                                     </div>
-                                    <div class="form-group col-md-2 ml-4">
+                                    <div class="form-group col-md-3">
                                         <label class="text-dark font-weight-bold">Meeting Location</label>
-                                        <input type="text" name="meeting_location" class="form-control" placeholder="Enter Meeting Location" required>
+                                        <!-- <input type="text" name="meeting_location" class="form-control" placeholder="Enter Meeting Location" required> -->
+                                        <select class="form-control select2" name="meeting_location" id="meeting_location">
+                                            <option>Choose Meeting Location</option>
+                                        </select>
                                     </div>
+                                </div>
 
+                                <div class="row">
                                     <div class="form-group col-md-2 col-xl-2 col-xxl-2">
                                         <label class="text-dark font-weight-bold">Meeting Date</label>
                                         <input name="meeting_date" class="datepicker-default form-control" id="datepicker" required>
                                     </div>
 
-                                    <div class="form-group col-md-2 col-xl-2 col-xxl-2 ml-4">
+                                    <div class="form-group col-md-2 col-xl-2 col-xxl-2">
                                         <label class="text-dark font-weight-bold">Meeting From</label>
                                         <input type="text" name="meeting_time_from" class="form-control timepicker_from" required>
                                     </div>
 
-                                    <div class="form-group col-md-2 col-xl-2 col-xxl-2 ml-4">
+                                    <div class="form-group col-md-2 col-xl-2 col-xxl-2">
                                         <label class="text-dark font-weight-bold">Meeting To</label>
                                         <input type="text" name="meeting_time_to" class="form-control timepicker_to" required>
                                     </div>
 
-                                    <div class="form-group col-md-2 ml-4">
+                                    <div class="form-group col-md-2">
                                         <label class="text-dark font-weight-bold">Parking Required</label>
                                         <select class="form-control select2" name="parking_required" required>
                                             <option selected>Choose...</option>
-                                            <option value="yes">Yes</option>
-                                            <option value="no">No</option>
+                                            <option value="two_wheeler">Two Wheeler</option>
+                                            <option value="four_wheeler">Four Wheeler</option>
+                                            <option value="not_applicable">N/A</option>
                                         </select>
                                     </div>
 
-                                    <div class="form-group col-md-2 ml-4">
+                                    <div class="form-group col-md-2">
                                         <label class="text-dark font-weight-bold">Wifi Required</label>
                                         <select id="inputState" class="form-control select2" name="wifi_required" required>
                                             <option selected>Choose...</option>
@@ -79,8 +107,9 @@
                                             <option value="no">No</option>
                                         </select>
                                     </div>
+                                </div>
 
-                                    <div class="form-group col-md-3 my-auto">
+                                    <div class="form-group col-md-3 p-0">
                                         <button class="btn btn-sm btn-primary text-white" type="submit"><i class="fa fa-save"></i> Create Request</button>
                                         <button class="btn btn-sm btn-danger" type="reset"><i class="fa fa-undo"></i> Reset</button>
 
@@ -93,7 +122,7 @@
                 </div>
 
 
-                <div class="col-lg-12">
+                <div class="col-lg-12 p-0">
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
@@ -106,11 +135,12 @@
                                         <th class="font-weight-bold text-dark">Designation</th>
                                         <th class="font-weight-bold text-dark">Company Details</th>
                                         <th class="font-weight-bold text-dark">Mail id</th>
+                                        <th class="font-weight-bold text-dark">Mobile</th>
                                         <th class="font-weight-bold text-dark">Action</th>
                                     </thead>
                                     <tbody class="apt_req_tbl_tbody">
                                         <tr data-row="1">
-                                            <td class="srn_no" style="width:5%;">1</td>
+                                            <td class="srn_no text-dark" style="width:5%;">1</td>
                                             <td style="width:20%;">
                                                 <input type="text" class="form-control" oninput="this.value = this.value.toUpperCase()" name="visitor_name[]" placeholder="Enter visitor Name" autocomplete="off" required>
                                             </td>
@@ -124,7 +154,10 @@
                                                 <input type="email" class="form-control" name="email_id[]" placeholder="Enter Email Id" autocomplete="off" required>
                                             </td>
                                             <td>
-                                                <button type="button" class="btn btn-sm btn-success add_row"><i class="fa fa-plus text-white" aria-hidden="true"></i></button>
+                                                <input type="text" class="form-control" oninput="IsValidMobileNumber(this)" name="mobile_no[]" placeholder="Enter mobile number" autocomplete="off" required maxlength="10">
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-success add_row"><i class="fa fa-plus text-white f-10" aria-hidden="true"></i></button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -225,6 +258,29 @@
             }
         });
     }
+
+
+    function get_meeting_location()
+    {
+        $.ajax({
+            type: "GET",
+            url: "ajax/common_ajax.php",
+            data: {
+                "Action": "get_meeting_location",
+            },
+            dataType:"json",
+            success: function(result) {
+                var option = '<option>Choose Department</option>';
+                if(result.length > 0) {
+                    for(i in result) {
+                        option += `<option value="${ result[i].Plant_Code }">${ result[i].Plant_Name }</option>`; 
+                    }
+                }
+                $('#meeting_location').html(option);
+            }
+        });
+    }
+     
      
     $(document).on('change', '.timepicker_from', function() {
         var from = $(this).val();
@@ -302,13 +358,14 @@
         get_employee_details();
         get_appointment_no();
         get_department();
+        get_meeting_location();
     });
 
     $(document).on('click', '.add_row', function() {
         var exist_row_count = $('#existing_row_count').val();
         var next_row_count = parseInt(exist_row_count) + parseInt(1);
         var table_row = `<tr data-row="${ next_row_count }">
-        <td class="srn_no" style="width:5%;">${ next_row_count }</td>
+        <td class="srn_no text-dark" style="width:5%;">${ next_row_count }</td>
         <td style="width:20%;">
         <input type="text" class="form-control text-upper" name="visitor_name[]" placeholder="Enter visitor Name" autocomplete="off" required>
         </td>
@@ -322,8 +379,13 @@
         <input type="email" class="form-control" name="email_id[]" placeholder="Enter Email Id" autocomplete="off" required>
         </td>
         <td>
-        <button type="button" class="btn btn-sm btn-success add_row"><i class="fa fa-plus text-white" aria-hidden="true"></i></button>
-        <button class='btn btn-sm btn-danger delete_row'><i class="fa fa-trash" aria-hidden="true"></i></button>
+            <input type="text" class="form-control" oninput="IsValidMobileNumber(this)" name="mobile_no[]" placeholder="Enter mobile number" autocomplete="off" required maxlength="10">
+        </td>
+        <td>
+            <div class="d-flex">
+                <button type="button" class="btn btn-sm btn-success add_row"><i class="fa fa-plus text-white f-10" aria-hidden="true"></i></button>
+                <button class='btn btn-sm btn-danger delete_row ml-2'><i class="fa fa-trash f-10" aria-hidden="true"></i></button>
+            </div>
         </td>
         </tr>`;
         $('.apt_req_tbl_tbody').append(table_row);
@@ -373,6 +435,15 @@
             }
         });
     });
+
+    function IsValidMobileNumber(input) {
+         input.value = input.value.replace(/[^0-9]/g, '');
+
+         if(input.value.length > 10) {
+            input.value = input.value.slice(0,10); 
+         }
+
+    }
 </script>
 
 </body>

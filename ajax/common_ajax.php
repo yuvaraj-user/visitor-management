@@ -16,7 +16,11 @@ if(isset($_POST) && isset($_POST['Action'])) {
 	} elseif($_POST['Action'] == 'visitors_arrival_report') {
 		$arrival_report = $Appointment->visitors_arrival_report($_POST);
 		echo json_encode($arrival_report);exit;	
-	}
+	} 
+	// elseif($_POST['Action'] == 'visitors_pass_print') {
+	// 	$arrival_report = $Appointment->visitors_arrival_report($_POST);
+	// 	echo json_encode($arrival_report);exit;	
+	// }
 
 } elseif (isset($_GET) && isset($_GET['Action'])) {
 	if($_GET['Action'] == 'get_employee_detail') {
@@ -53,8 +57,11 @@ if(isset($_POST) && isset($_POST['Action'])) {
 	} elseif($_GET['Action'] == 'get_meeting_reviews_list') {
 		$meeting_reviews = $Appointment->get_meeting_reviews_list($_GET);
 		echo json_encode($meeting_reviews);exit;	
-	} 
- 
+	} elseif($_GET['Action'] == 'get_meeting_location') {
+		$get_meeting_location = $Appointment->get_meeting_location($_GET);
+		echo json_encode($get_meeting_location);exit;	
+	}  
+
 
 }
 	

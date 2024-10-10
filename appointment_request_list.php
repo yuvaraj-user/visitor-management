@@ -27,7 +27,8 @@
                               <th scope="col">Visitors Name</th>
                               <th scope="col">Designation</th>
                               <th scope="col">Company Details</th>
-                              <th scope="col">EMail</th>                              
+                              <th scope="col">Email</th>     
+                              <th scope="col">Mobile</th>                                                       
                             </tr>
                           </thead>
                           <tbody id="visitors_info_tbody">
@@ -181,6 +182,7 @@
                             <td class="text-dark text-center">${ result['request'][i].visitor_designation }</td>
                             <td class="text-dark text-center">${ result['request'][i].visitor_company_details }</td>
                             <td class="text-dark text-center">${ result['request'][i].visitor_mail_id }</td>
+                            <td class="text-dark text-center">${ (result['request'][i].visitor_mobile_no != null) ? result['request'][i].visitor_mobile_no : '' }</td>
                             </tr>`;
                         }
 
